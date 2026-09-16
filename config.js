@@ -1,6 +1,6 @@
-// Supabase Project Settings > API から値を貼り付けてください。
-// anon key はブラウザ公開前提のキーです。service_role key は絶対に入れないでください。
+// IELTS VOCAB Supabase project
+// Publishable key はブラウザ公開前提です。secret/service_role key は絶対に入れないでください。
 window.WRITING_MANAGER_CONFIG = {
-  supabaseUrl: "YOUR_SUPABASE_URL",
-  supabaseAnonKey: "YOUR_SUPABASE_ANON_KEY"
+  supabaseUrl: "https://vkriocftuflnkubaxrza.supabase.co",
+  supabaseAnonKey: "sb_publishable_R3ff2RuU9WOU8pbj5SxvLg_R8ZW6EhP"
 };
