@@ -1,7 +1,7 @@
--- Writing Manager v1
-create extension if not exists pgcrypto;
+-- Writing Manager schema (IELTS VOCAB Supabase project)
+-- This app uses prefixed tables so it does not collide with existing IELTS VOCAB data.
 
-create table if not exists public.assignments (
+create table if not exists public.writing_assignments (
   id uuid primary key default gen_random_uuid(),
   title text not null,
   prompt text default '',
@@ -9,9 +9,9 @@ create table if not exists public.assignments (
   created_at timestamptz not null default now()
 );
 
-create table if not exists public.submissions (
+create table if not exists public.writing_submissions (
   id uuid primary key default gen_random_uuid(),
-  assignment_id uuid not null references public.assignments(id) on delete cascade,
+  assignment_id uuid not null references public.writing_assignments(id) on delete cascade,
   class_name text not null,
   student_no integer not null,
   student_name text not null,
@@ -27,19 +27,22 @@ create table if not exists public.submissions (
   reviewed_at timestamptz
 );
 
-alter table public.assignments enable row level security;
-alter table public.submissions enable row level security;
+alter table public.writing_assignments enable row level security;
+alter table public.writing_submissions enable row level security;
 
--- v1: 生徒ページから課題一覧を読める
-create policy "public can read active assignments" on public.assignments for select to anon using (active = true);
--- v1: 生徒は提出のみ可能。提出内容の一覧取得は許可しない。
-create policy "public can submit essays" on public.submissions for insert to anon with check (status = 'submitted');
+-- Anonymous students can only read open assignments and create new submissions.
+-- They cannot list/read submitted essays.
+drop policy if exists "public can read active writing assignments" on public.writing_assignments;
+create policy "public can read active writing assignments" on public.writing_assignments
+for select to anon using (active = true);
 
--- 初期課題
-insert into public.assignments(title,prompt) values
-('Practice Essay #1','Write an essay on the assigned topic.');
+drop policy if exists "public can submit writing essays" on public.writing_submissions;
+create policy "public can submit writing essays" on public.writing_submissions
+for insert to anon with check (status = 'submitted');
 
--- IMPORTANT:
--- teacher.html から全提出を閲覧・更新するには教師認証を追加する必要があります。
--- service_role key をブラウザへ置かないでください。
--- 次版で Supabase Auth + teacher role を追加する前提です。
+insert into public.writing_assignments(title,prompt)
+select 'Practice Essay #1','Write an essay on the assigned topic.'
+where not exists (select 1 from public.writing_assignments);
+
+-- Teacher SELECT/UPDATE policies are intentionally not public.
+-- Add Supabase Auth + teacher-only policies before enabling the teacher dashboard.
