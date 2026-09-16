@@ -1,6 +1,8 @@
 const cfg=window.WRITING_MANAGER_CONFIG;
 const ready=cfg&&cfg.supabaseUrl&&!cfg.supabaseUrl.startsWith('YOUR_');
-const db=ready?supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey):null;
+// Student page must always use an anonymous, in-memory client.
+// This prevents a teacher login stored on the same GitHub Pages origin from changing the RLS role here.
+const db=ready?supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}}):null;
 const essay=document.querySelector('#essay'), count=document.querySelector('#wordCount'), assignment=document.querySelector('#assignment'), promptBox=document.querySelector('#promptBox');
 function words(s){return (s.trim().match(/[A-Za-z0-9]+(?:['’-][A-Za-z0-9]+)*/g)||[]).length}
 essay.addEventListener('input',()=>count.textContent=`${words(essay.value)} words`);
